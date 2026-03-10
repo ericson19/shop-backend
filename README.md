@@ -1,3 +1,5 @@
+HEAD
+
 # 🛒 E-Commerce Backend API
 
 A RESTful backend API for a full-featured E-Commerce system built with:
@@ -85,3 +87,7 @@ send JWT as cookies
   userDetail
 
 send JWT as cookies only on login and not in regration because registration in done by admin
+
+# shop-backend
+
+5dee417a468b7eecd299090b5bab4b2c631857e7
