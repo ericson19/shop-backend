@@ -23,7 +23,8 @@ const {
 const {
   addUserValidation,
   updateUserValidation,
-} = require("../Validators/userValidator");
+} = require("../validators/userValidator");
+console.log("User routes loaded successfully");
 const {
   changePasswordValidation,
 } = require("../validators/changePasswordValidation");
