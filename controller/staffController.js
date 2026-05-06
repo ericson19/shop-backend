@@ -53,7 +53,8 @@ const staffLogin = async (req, res) => {
     res.cookie("staffToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.json({ staff, token });
   } catch (error) {
