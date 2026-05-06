@@ -26,8 +26,8 @@ const app = express();
     await db.authenticate();
     console.log("Connection has been established successfully.");
 
-    await db.sync({ alter: true });
-    console.log("Database synchronized successfully.");
+    // await db.sync({ alter: true });
+    // console.log("Database synchronized successfully.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
