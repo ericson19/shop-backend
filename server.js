@@ -30,8 +30,8 @@ const app = express();
     // Create admin user if not exists
     await createAdmin();
 
-    await db.sync({ alter: true });
-    console.log("Database synchronized successfully.");
+    // await db.sync({ alter: true });
+    // console.log("Database synchronized successfully.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
