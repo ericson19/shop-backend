@@ -28,7 +28,7 @@ const Return = sequelize.define("Return", {
     allowNull: false,
   },
   notes: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
   },
 

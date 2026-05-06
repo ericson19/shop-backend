@@ -15,6 +15,7 @@ const locationRoute = require("./routes/locationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const mailRoutes = require("./routes/mailRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
+const createAdmin = require("./services/adminCreature");
 
 env.config();
 
@@ -26,8 +27,11 @@ const app = express();
     await db.authenticate();
     console.log("Connection has been established successfully.");
 
-    // await db.sync({ alter: true });
-    // console.log("Database synchronized successfully.");
+    // Create admin user if not exists
+    await createAdmin();
+
+    await db.sync({ alter: true });
+    console.log("Database synchronized successfully.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }

@@ -28,7 +28,7 @@ const returnVendor = sequelize.define("returnVendor", {
     defaultValue: "No reason provided",
   },
   notes: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   stockId: {
