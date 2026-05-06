@@ -25,12 +25,19 @@ const app = express();
   try {
     await db.authenticate();
     console.log("Connection has been established successfully.");
+
+    await db.sync({ alter: true });
+    console.log("Database synchronized successfully.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
 })();
-
-app.use(cors({}));
+app.use(
+  cors({
+    origin: process.env.DOMAIN_URL,
+    credentials: true,
+  }),
+);
 
 // Serve static files from the "uploads" directory
 app.use("/uploads", express.static("uploads"));
