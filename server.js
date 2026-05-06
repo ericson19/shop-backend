@@ -11,6 +11,10 @@ const staffRoute = require("./routes/staffRoute");
 const salesRoutes = require("./routes/salesRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const purchaseGoodRoutes = require("./routes/purchaseGoodRoutes");
+const locationRoute = require("./routes/locationRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const mailRoutes = require("./routes/mailRoutes");
+const settingsRoutes = require("./routes/settingsRoutes");
 
 env.config();
 
@@ -28,7 +32,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.DOMAIN_URL,
     credentials: true,
   }),
 );
@@ -45,6 +49,10 @@ app.use("/staff", staffRoute);
 app.use("/sales", salesRoutes);
 app.use("/payment", paymentRoutes);
 app.use("/purchase", purchaseGoodRoutes);
+app.use("/location", locationRoute);
+app.use("/report", reportRoutes);
+app.use("/mail", mailRoutes);
+app.use("/settings", settingsRoutes);
 app.get("/", (req, res) => {
   res.send("Welcome to the shop backend!");
 });

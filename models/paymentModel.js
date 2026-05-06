@@ -64,6 +64,6 @@ User.hasMany(Payment, { foreignKey: "userId" });
 Payment.belongsTo(Sale, { foreignKey: "saleId" });
 Sale.hasMany(Payment, { foreignKey: "saleId" });
 Payment.belongsTo(Order, { foreignKey: "orderId" });
-Order.hasMany(Payment, { foreignKey: "orderId" });
+Order.hasOne(Payment, { foreignKey: "orderId" });
 
 module.exports = Payment;

@@ -5,31 +5,32 @@ const Staff = require("../models/staffModel");
 
 const protect = async (req, res, next) => {
   const token = req.cookies.token;
-  if (!token) {
+  const staffToken = req.cookies.staffToken;
+  if (!token && !staffToken) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.role === "admin") {
-      req.admin = await Admin.findByPk(decoded.id);
-    }
-    if (decoded.role === "user") {
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findByPk(decoded.id);
     }
-    if (decoded.role === "staff") {
+
+    if (staffToken) {
+      const decoded = jwt.verify(staffToken, process.env.JWT_SECRET);
       req.staff = await Staff.findByPk(decoded.id);
     }
-    if (!req.admin && !req.user && !req.staff) {
-      return res.status(401).json({ message: "Unauthorized: User not found" });
+    if (!req.user && !req.staff) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
     }
+
     next();
   } catch (error) {
-    console.error("Error verifying token:", token, error);
+    console.error("Error verifying token:", token || staffToken, error);
     return res.status(401).json({ message: "Unauthorized: Invalid token" });
   }
 };
 
-const permission = (role) => {
+const role = (role) => {
   return (req, res, next) => {
     if (req.staff.role !== role) {
       return res.status(403).json({ message: `Forbidden: You're not ${role}` });
@@ -37,12 +38,12 @@ const permission = (role) => {
     next();
   };
 };
-const isAdmin = (req, res, next) => {
-  if (!req.admin) {
-    return res.status(403).json({ message: "Forbidden: You're not an admin" });
-  }
-  next();
-};
+// const isAdmin = (req, res, next) => {
+//   if (!req.admin) {
+//     return res.status(403).json({ message: "Forbidden: You're not an admin" });
+//   }
+//   next();
+// };
 const isUser = (req, res, next) => {
   if (!req.user) {
     return res.status(403).json({ message: "Forbidden: You're not a user" });
@@ -55,4 +56,4 @@ const isStaff = (req, res, next) => {
   }
   next();
 };
-module.exports = { protect, permission, isAdmin, isUser, isStaff };
+module.exports = { protect, role, isUser, isStaff };

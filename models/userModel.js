@@ -1,5 +1,8 @@
 const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
+const Country = require("./countryModel");
+const State = require("./stateModel");
+const City = require("./cityModel");
 
 const User = sequelize.define("User", {
   id: {
@@ -45,6 +48,36 @@ const User = sequelize.define("User", {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  stateId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: State,
+      key: "id",
+    },
+  },
+  countryId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: Country,
+      key: "id",
+    },
+  },
+  cityId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: City,
+      key: "id",
+    },
+  },
 });
+User.belongsTo(Country, { foreignKey: "countryId" });
+Country.hasMany(User, { foreignKey: "countryId" });
+User.belongsTo(State, { foreignKey: "stateId" });
+State.hasMany(User, { foreignKey: "stateId" });
+User.belongsTo(City, { foreignKey: "cityId" });
+City.hasMany(User, { foreignKey: "cityId" });
 
 module.exports = User;

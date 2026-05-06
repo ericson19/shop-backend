@@ -20,4 +20,18 @@ const addUserValidation = [
     .withMessage("Valid phone number is required"),
 ];
 
-module.exports = { addUserValidation };
+const updateUserValidation = [
+  body("fullName").optional({ checkFalsy: true }).trim().escape(),
+  body("email")
+    .optional({ checkFalsy: true })
+    .isEmail()
+    .withMessage("Valid email is required")
+    .normalizeEmail(),
+
+  body("phone")
+    .optional({ checkFalsy: true })
+    .isMobilePhone()
+    .withMessage("Valid phone number is required"),
+];
+
+module.exports = { addUserValidation, updateUserValidation };

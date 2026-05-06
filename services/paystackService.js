@@ -1,24 +1,21 @@
 const axios = require("axios");
 
-exports.initializePayment = async (email, amount, reference) => {
+exports.initializePayment = async (data) => {
   try {
     const response = await axios.post(
       "https://api.paystack.co/transaction/initialize",
-      {
-        email,
-        amount: amount * 100, // 🚨 Paystack uses kobo
-        reference,
-      },
+      data,
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer sk_test_bce4e36c3c8fc2e08cbadca9023bf5122e069275`,
           "Content-Type": "application/json",
         },
       },
     );
-
-    return response.data.data;
+    console.log("email:", data.email, "response:", response.data);
+    return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Paystack Error");
+    console.error("Paystack initialization error:", error.response?.data);
+    throw new Error(JSON.stringify(error.response?.data));
   }
 };

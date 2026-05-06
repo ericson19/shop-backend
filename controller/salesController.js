@@ -7,6 +7,9 @@ const crypto = require("crypto");
 const Sale = require("../models/salesModel");
 const SaleItems = require("../models/salesitemsModel");
 const sequelize = require("../config/db");
+const StockFlow = require("../models/stockFlowModel");
+const MailSender = require("../utils/sendEmail");
+const { OrderConfirmationTemplate } = require("../services/mailTemplates");
 
 exports.createSale = async (req, res) => {
   const t = await sequelize.transaction();
@@ -29,6 +32,13 @@ exports.createSale = async (req, res) => {
       payOnDelivery,
       items,
     } = req.body;
+
+    if (req.user.accountBalance < totalAmount) {
+      if (paymentMethod === "accountBalance") {
+        await t.rollback();
+        return res.status(400).json({ error: "Insufficient account balance" });
+      }
+    }
     const sale = await Sale.create(
       {
         paymentMethod,
@@ -59,14 +69,14 @@ exports.createSale = async (req, res) => {
     );
 
     for (const item of items) {
-      const stockItem = await Stock.findByPk(item.productId, {
+      const stockItem = await Stock.findByPk(item.id, {
         transaction: t,
       });
       if (!stockItem) {
         await t.rollback();
         return res
           .status(404)
-          .json({ error: `Product with ID ${item.productId} not found` });
+          .json({ error: `Product with ID ${item.id} not found` });
       }
       const availableStock = stockItem.stock - stockItem.reserved;
       if (availableStock < item.quantity) {
@@ -75,14 +85,36 @@ exports.createSale = async (req, res) => {
           .status(400)
           .json({ error: `Insufficient stock for product ${stockItem.name}` });
       }
+      if (stockItem) {
+        const stockRecord = await StockFlow.create(
+          {
+            stockId: stockItem.id,
+            quantity: item.quantity,
+            movementType: "sold",
+            flowType: "out",
+            oldStock: stockItem.stock - Number(item.quantity),
+            newStock: stockItem.stock,
+            // product: newProd.name,
+            doneBy: userId,
+            amount: item.quantity * item.soldPrice,
+          },
+          { transaction: t },
+        );
+        if (!stockRecord) {
+          await t.rollback();
+          return res
+            .status(500)
+            .json({ error: "Failed to create stock flow record" });
+        }
+      }
       await SaleItems.create(
         {
           saleId: sale.id,
-          productId: item.productId,
+          productId: item.id,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
+          unitPrice: item.soldPrice,
           totalPrice:
-            item.quantity * item.unitPrice - (item.stockDiscount || 0),
+            item.quantity * item.soldPrice - (item.stockDiscount || 0),
           discount: item.stockDiscount || 0,
           orderId: order.id,
         },
@@ -96,12 +128,12 @@ exports.createSale = async (req, res) => {
       await stockItem.save({ transaction: t });
     }
     await t.commit();
-    //send notification to user about the new sale
 
     // Emit real-time update to clients about the new sale
     res.status(201).json({ sale, order });
   } catch (error) {
     await t.rollback();
+    console.error("Error creating sale:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -163,7 +195,7 @@ exports.makePayment = async (req, res) => {
 exports.confirmOrder = async (req, res) => {
   try {
     const staffId = req.staff.id;
-    const { status } = req.body;
+    const { status, expectedDate } = req.body;
     const { orderId } = req.params;
     const order = await Order.findOne({
       where: { id: orderId },
@@ -187,6 +219,7 @@ exports.confirmOrder = async (req, res) => {
 
     order.status = status;
     order.updatedAt = new Date();
+    order.expectedDate = expectedDate;
     order.confirmedBy = staffId;
     await order.save();
 
@@ -227,7 +260,7 @@ exports.confirmOrder = async (req, res) => {
     }
     //Send notification to user about order status update
 
-    res.json({ order, message: "Order confirmed successfully" });
+    res.status(200).json({ order, message: "Order confirmed successfully" });
   } catch (error) {
     console.error("Error confirming order:", error);
     res.status(500).json({ error: error.message });
@@ -279,7 +312,8 @@ exports.cancelorder = async (req, res) => {
 
     sale.paymentStatus = "cancelled";
     order.status = "cancelled";
-    order.confirmedBy = req.user.id || req.staff.id || null;
+    order.expectedDate = null;
+    // order.confirmedBy = req.user.id || null;
     order.updatedAt = new Date();
 
     await sale.save({ transaction: t });
@@ -290,7 +324,7 @@ exports.cancelorder = async (req, res) => {
   } catch (error) {
     await t.rollback();
     console.error("Error cancelling order:", error);
-    res.status(500).json({ error: "Failed to cancel order" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -347,11 +381,17 @@ exports.returnOrder = async (req, res) => {
         if (!order.payOnDelivery && order.status === "pending") {
           stockItem.reserved = Math.max(0, stockItem.reserved - item.quantity);
         }
-        if (
-          !order.payOnDelivery &&
-          (order.status === "processing" || order.status === "shipped")
-        ) {
+        if (!order.payOnDelivery && order.status === "cancelled") {
           stockItem.stock = Math.max(0, stockItem.stock + item.quantity);
+
+          console.log(
+            "Returning stock for item:",
+            item.productId,
+            "Quantity:",
+            item.quantity,
+            "Current stock:",
+            stockItem.stock,
+          );
         }
 
         await stockItem.save({ transaction: t });
@@ -372,6 +412,7 @@ exports.returnOrder = async (req, res) => {
     }
 
     order.returned = true;
+    order.confirmedBy = req.staff.id;
     sale.returned = true;
     await sale.save({ transaction: t });
     order.updatedAt = new Date();
@@ -383,5 +424,160 @@ exports.returnOrder = async (req, res) => {
     await t.rollback();
     console.error("Error returning order:", error);
     res.status(500).json({ error: "Failed to return order" });
+  }
+};
+
+//get orders for a user
+exports.getUserOrders = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const orders = await Order.findAll({
+      where: { userId },
+      include: [
+        {
+          model: Payment,
+          required: false,
+        },
+        {
+          model: SaleItems,
+          include: [
+            { model: Stock, attributes: ["name", "description", "image"] },
+          ],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+    res.json({ orders });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+};
+
+//get order details for a user per order ID
+exports.getOrderDetails = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const { orderId } = req.params;
+    const order = await Order.findOne({
+      where: { id: orderId, userId },
+      include: [
+        {
+          model: Payment,
+          where: { paymentStatus: "completed" },
+          required: false,
+        },
+        {
+          model: SaleItems,
+          include: [
+            { model: Stock, attributes: ["name", "description", "image"] },
+          ],
+        },
+      ],
+    });
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.status(200).json({ order });
+  } catch (error) {
+    console.error("Error fetching order details:", error);
+    res.status(500).json({ error: "Failed to fetch order details" });
+  }
+};
+//get order details for a user per order ID for staff
+exports.getOrderDetailsForStaff = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findOne({
+      where: { id: orderId },
+      include: [
+        {
+          model: Payment,
+          attributes: ["paymentMethod", "paymentStatus"],
+        },
+        {
+          model: User,
+          attributes: ["id", "fullName", "email"],
+        },
+        {
+          model: SaleItems,
+          include: [
+            { model: Stock, attributes: ["name", "description", "image"] },
+          ],
+        },
+      ],
+    });
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.status(200).json({ order });
+  } catch (error) {
+    console.error("Error fetching order details:", error);
+    res.status(500).json({ error: "Failed to fetch order details" });
+  }
+};
+
+exports.getAllOrders = async (req, res) => {
+  const limit = parseInt(req.query.limit);
+  const page = parseInt(req.query.page);
+  const offset = (page - 1) * limit;
+  try {
+    const { count, rows: orders } = await Order.findAndCountAll({
+      include: [
+        { model: User, attributes: ["id", "fullName", "email"] },
+        { model: Sale },
+        {
+          model: SaleItems,
+          include: [
+            { model: Stock, attributes: ["name", "description", "image"] },
+          ],
+        },
+      ],
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
+    const totalPages = Math.ceil(count / limit);
+    res.json({ orders, totalPages });
+  } catch (error) {
+    console.error("Error fetching all orders:", error);
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+};
+
+//get cancelled order for admin to return the money to user account balance
+exports.getCancelledOrders = async (req, res) => {
+  const limit = parseInt(req.query.limit);
+  const page = parseInt(req.query.page);
+  const offset = (page - 1) * limit;
+  try {
+    const { count, rows: orders } = await Order.findAndCountAll({
+      where: { status: "cancelled" },
+      include: [
+        {
+          model: Payment,
+          where: { paymentStatus: "completed" },
+          required: false,
+        },
+        { model: User, attributes: ["id", "fullName", "email"] },
+        {
+          model: SaleItems,
+          include: [
+            { model: Stock, attributes: ["name", "description", "image"] },
+          ],
+        },
+      ],
+      limit,
+      offset,
+
+      order: [["updatedAt", "DESC"]],
+    });
+    const totalPages = Math.ceil(count / limit);
+    res.status(200).json({ orders, totalPages });
+    //Send notification to admin about cancelled orders that need attention
+  } catch (error) {
+    console.error("Error fetching cancelled orders:", error);
+    res.status(500).json({ error: "Failed to fetch orders" });
   }
 };

@@ -1,7 +1,7 @@
 const sequelize = require("../config/db");
 const User = require("./userModel");
 const { DataTypes } = require("sequelize");
-const Order = require("./orderModel");
+// const Order = require("./orderModel");
 
 const Sale = sequelize.define("Sales", {
   paymentMethod: {

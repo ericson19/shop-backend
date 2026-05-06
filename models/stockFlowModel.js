@@ -12,6 +12,10 @@ const StockFlow = sequelize.define("StockFlow", {
       key: "id",
     },
   },
+  amount: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+  },
 
   quantity: {
     type: DataTypes.INTEGER,

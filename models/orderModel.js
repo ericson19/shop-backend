@@ -88,11 +88,15 @@ const Order = sequelize.define("Order", {
     allowNull: false,
     defaultValue: false,
   },
+  expectedDate: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 });
 Order.belongsTo(User, { foreignKey: "userId" });
 User.hasMany(Order, { foreignKey: "userId" });
 Order.belongsTo(Sales, { foreignKey: "saleId" });
-Sales.hasMany(Order, { foreignKey: "saleId" });
+Sales.hasOne(Order, { foreignKey: "saleId" });
 Order.belongsTo(Staff, { foreignKey: "confirmedBy" });
 Staff.hasMany(Order, { foreignKey: "confirmedBy" });
 
