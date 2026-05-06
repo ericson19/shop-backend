@@ -30,12 +30,7 @@ const app = express();
   }
 })();
 
-app.use(
-  cors({
-    origin: process.env.DOMAIN_URL,
-    credentials: true,
-  }),
-);
+app.use(cors({}));
 
 // Serve static files from the "uploads" directory
 app.use("/uploads", express.static("uploads"));
