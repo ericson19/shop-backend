@@ -24,7 +24,7 @@ const {
   addUserValidation,
   updateUserValidation,
 } = require("../validators/userValidator");
-console.log("User routes loaded successfully");
+
 const {
   changePasswordValidation,
 } = require("../validators/changePasswordValidation");

@@ -134,11 +134,12 @@ exports.otpRequest = async (req, res) => {
       expiresAt,
       type: "email_verification",
     });
-    await MailSender(
-      "ericanox@gmail.com",
-      "Your OTP Code",
-      OtpTemplate(otpCode),
-    );
+
+    // await MailSender(
+    //   "ericanox@gmail.com",
+    //   "Your OTP Code",
+    //   OtpTemplate(otpCode),
+    // );
     res.status(200).json({ message: "OTP sent to email", otp: otpCode });
   } catch (error) {
     console.error("Error requesting OTP:", error);
