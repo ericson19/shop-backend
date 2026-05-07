@@ -16,6 +16,7 @@ const reportRoutes = require("./routes/reportRoutes");
 const mailRoutes = require("./routes/mailRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
 const createAdmin = require("./services/adminCreature");
+const createDefaultSettings = require("./services/settingsCreature");
 
 env.config();
 
@@ -32,6 +33,8 @@ const app = express();
 
     // await db.sync({ alter: true });
     // console.log("Database synchronized successfully.");
+
+    await createDefaultSettings();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
