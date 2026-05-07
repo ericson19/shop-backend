@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
-const city = require("../models/cityModel");
-const state = require("../models/stateModel");
-const country = require("../models/countryModel");
+const City = require("../models/cityModel");
+const State = require("../models/stateModel");
+const Country = require("../models/countryModel");
 const Order = require("../models/orderModel");
 const OTP = require("../models/otpModel");
 const crypto = require("crypto");
@@ -154,9 +154,9 @@ exports.loginUser = async (req, res) => {
     const user = await User.findOne({
       where: { email },
       include: [
-        { model: city, attributes: ["id", "name", "fee", "code"] },
-        { model: state, attributes: ["id", "name"] },
-        { model: country, attributes: ["id", "name"] },
+        { model: City, attributes: ["id", "name", "fee", "code"] },
+        { model: State, attributes: ["id", "name"] },
+        { model: Country, attributes: ["id", "name"] },
       ],
     });
     if (!user) {
@@ -181,6 +181,7 @@ exports.loginUser = async (req, res) => {
       sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    console.log("fee for this user:", user.City.fee);
     res.status(200).json({
       userDetails: {
         id: user.id,
@@ -191,10 +192,10 @@ exports.loginUser = async (req, res) => {
         accountBalance: user.accountBalance,
         last_login: user.last_login,
         isVerified: user.isVerified,
-        city: user.city,
-        state: user.state,
-        country: user.country,
-        fee: user.city.fee,
+        city: user.City,
+        state: user.State,
+        country: user.Country,
+        fee: user.City.fee,
         status: user.status,
       },
       token,
