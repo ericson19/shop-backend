@@ -11,7 +11,7 @@ const sequelize = require("../config/db");
 const DamagedItem = require("../models/damageModel");
 const ReturnVendor = require("../models/returnVendorModel");
 const crypto = require("crypto");
-
+const cloudinaryConfig = require("../config/cloudinaryConfig");
 const addProduct = async (req, res) => {
   const {
     categoryId,
@@ -76,10 +76,12 @@ const addProduct = async (req, res) => {
         },
       });
     }
+    // const uploadedImage = await cloudinaryConfig(imagePath);
+    // const uploadedVideo = videoPath ? await cloudinaryConfig(videoPath) : null;
 
     const newProd = await Stock.create({
       name,
-      categoryId: existingCategory.id,
+      categoryId: categoryId,
       stock,
       barCode,
       price,

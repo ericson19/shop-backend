@@ -4,7 +4,7 @@ const path = require("path");
 // Set up storage engine for multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/products"); // Specify the destination folder for uploaded files
+    cb(null, path.join(__dirname, "../uploads/products")); // Specify the destination folder for uploaded files
   },
   filename: function (req, file, cb) {
     const safeName = file.originalname.replace(/\s+/g, "-").toLowerCase();
