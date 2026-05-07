@@ -64,21 +64,21 @@ app.get("/", (req, res) => {
 });
 
 // Endpoint to check if an image exists in the uploads folder
-const fs = require("fs");
-const path = require("path");
+// const fs = require("fs");
+// const path = require("path");
 
-app.get("/check-image", (req, res) => {
-  const imagePath = path.join(
-    __dirname,
-    "uploads/products/1778150427037-jxa6v9a8jmgyoeixajn0cu0mi2oc2qjl7ukqjpqu.jpg",
-  );
+// app.get("/check-image", (req, res) => {
+//   const imagePath = path.join(
+//     __dirname,
+//     "uploads/products/1778150427037-jxa6v9a8jmgyoeixajn0cu0mi2oc2qjl7ukqjpqu.jpg",
+//   );
 
-  if (fs.existsSync(imagePath)) {
-    return res.send("Image exists");
-  }
+//   if (fs.existsSync(imagePath)) {
+//     return res.send("Image exists");
+//   }
 
-  return res.send("Image missing");
-});
+//   return res.send("Image missing");
+// });
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on port ${process.env.PORT || 3000}`);

@@ -5,65 +5,71 @@ const Stock = require("./stockModel");
 const Supplier = require("./supplierModel");
 const Purchase = require("./purchaseModel");
 
-const returnVendor = sequelize.define("returnVendor", {
-  quantityReturned: {
-    type: DataTypes.INTEGER,
-    required: true,
-  },
-  amountRefunded: {
-    type: DataTypes.FLOAT,
-    required: true,
-  },
-  pricePerUnit: {
-    type: DataTypes.FLOAT,
-    required: true,
-  },
-  invoiceNumber: {
-    type: DataTypes.STRING,
-    required: true,
-  },
-  reason: {
-    type: DataTypes.STRING,
-    required: true,
-    defaultValue: "No reason provided",
-  },
-  notes: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-  },
-  stockId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Stock,
-      key: "id",
+const returnVendor = sequelize.define(
+  "returnVendor",
+  {
+    quantityReturned: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    amountRefunded: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    pricePerUnit: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    invoiceNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "No reason provided",
+    },
+    notes: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    stockId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Stock,
+        key: "id",
+      },
+    },
+    staffId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Staff,
+        key: "id",
+      },
+    },
+    supplierId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Supplier,
+        key: "id",
+      },
+    },
+    purchaseId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Purchase,
+        key: "id",
+      },
     },
   },
-  staffId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Staff,
-      key: "id",
-    },
+  {
+    tableName: "returnVendors",
   },
-  supplierId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Supplier,
-      key: "id",
-    },
-  },
-  purchaseId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Purchase,
-      key: "id",
-    },
-  },
-});
+);
 
 returnVendor.belongsTo(Stock, { foreignKey: "stockId" });
 Stock.hasMany(returnVendor, { foreignKey: "stockId" });

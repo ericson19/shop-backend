@@ -3,15 +3,15 @@ const { DataTypes } = require("sequelize");
 const MainCategory = require("./mainCategory");
 
 const Category = sequelize.define(
-  "Category",
+  "category",
   {
     name: {
       type: DataTypes.STRING,
-      required: true,
+      allowNull: false,
     },
     description: {
       type: DataTypes.STRING,
-      required: true,
+      allowNull: false,
     },
     mainCatId: {
       type: DataTypes.INTEGER,
