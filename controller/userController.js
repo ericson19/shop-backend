@@ -181,7 +181,7 @@ exports.loginUser = async (req, res) => {
       sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    console.log("fee for this user:", user.City.fee);
+    console.log("fee for this user:", user.City);
     res.status(200).json({
       userDetails: {
         id: user.id,

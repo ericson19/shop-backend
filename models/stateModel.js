@@ -3,7 +3,7 @@ const { DataTypes, Model } = require("sequelize");
 const Country = require("./countryModel");
 
 const State = sequelize.define(
-  "state",
+  "State",
   {
     name: {
       type: DataTypes.STRING,
