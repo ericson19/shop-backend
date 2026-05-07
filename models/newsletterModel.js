@@ -2,7 +2,7 @@ const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
 
 const Newsletter = sequelize.define(
-  "newsletter",
+  "Newsletter",
   {
     email: {
       type: DataTypes.STRING,

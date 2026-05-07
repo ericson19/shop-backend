@@ -5,7 +5,7 @@ const Supplier = require("./supplierModel");
 const Staff = require("./staffModel");
 
 const Purchase = sequelize.define(
-  "purchase",
+  "Purchase",
   {
     totalAmount: {
       type: DataTypes.DECIMAL(10, 2),

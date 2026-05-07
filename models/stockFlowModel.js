@@ -4,7 +4,7 @@ const { DataTypes } = require("sequelize");
 const Stock = require("./stockModel");
 
 const StockFlow = sequelize.define(
-  "stockFlow",
+  "StockFlow",
   {
     stockId: {
       type: DataTypes.INTEGER,

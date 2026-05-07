@@ -4,7 +4,7 @@ const Stock = require("./stockModel");
 const Sale = require("./salesModel");
 const Order = require("./orderModel");
 const SaleItems = sequelize.define(
-  "salesItems",
+  "SalesItems",
   {
     saleId: {
       type: DataTypes.INTEGER,

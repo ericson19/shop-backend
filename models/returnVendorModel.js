@@ -6,7 +6,7 @@ const Supplier = require("./supplierModel");
 const Purchase = require("./purchaseModel");
 
 const returnVendor = sequelize.define(
-  "returnVendor",
+  "ReturnVendor",
   {
     quantityReturned: {
       type: DataTypes.INTEGER,

@@ -3,7 +3,7 @@ const { DataTypes } = require("sequelize");
 
 // Create a new supplier model
 const Supplier = sequelize.define(
-  "supplier",
+  "Supplier",
   {
     name: {
       type: DataTypes.STRING,

@@ -4,7 +4,7 @@ const Stock = require("./stockModel");
 const Staff = require("./staffModel");
 
 const DamagedItem = sequelize.define(
-  "damagedItem",
+  "DamagedItem",
   {
     quantityDamaged: {
       type: DataTypes.INTEGER,

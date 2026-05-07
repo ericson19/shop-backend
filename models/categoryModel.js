@@ -3,7 +3,7 @@ const { DataTypes } = require("sequelize");
 const MainCategory = require("./mainCategory");
 
 const Category = sequelize.define(
-  "category",
+  "Category",
   {
     name: {
       type: DataTypes.STRING,

@@ -5,7 +5,7 @@ const State = require("./stateModel");
 const City = require("./cityModel");
 
 const User = sequelize.define(
-  "user",
+  "User",
   {
     id: {
       type: DataTypes.INTEGER,

@@ -2,7 +2,7 @@ const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
 
 const Settings = sequelize.define(
-  "settings",
+  "Settings",
   {
     siteName: {
       type: DataTypes.STRING,

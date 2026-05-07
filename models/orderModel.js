@@ -5,7 +5,7 @@ const User = require("./userModel");
 const Staff = require("./staffModel");
 
 const Order = sequelize.define(
-  "order",
+  "Order",
   {
     userId: {
       type: DataTypes.INTEGER,

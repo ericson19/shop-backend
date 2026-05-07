@@ -2,7 +2,7 @@ const sequelize = require("../config/db");
 const { DataTypes } = require("sequelize");
 
 const delLocation = sequelize.define(
-  "delLocation",
+  "DelLocation",
   {
     city: {
       type: DataTypes.STRING,

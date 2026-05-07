@@ -4,7 +4,7 @@ const { DataTypes } = require("sequelize");
 // const Order = require("./orderModel");
 
 const Sale = sequelize.define(
-  "sales",
+  "Sales",
   {
     paymentMethod: {
       type: DataTypes.STRING,

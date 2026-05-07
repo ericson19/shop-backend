@@ -6,7 +6,7 @@ const Sale = require("./salesModel");
 const User = require("./userModel");
 
 const Return = sequelize.define(
-  "return",
+  "Return",
   {
     userId: {
       type: DataTypes.INTEGER,

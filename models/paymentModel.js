@@ -4,7 +4,7 @@ const User = require("./userModel");
 const Sale = require("./salesModel");
 const Order = require("./orderModel");
 const Payment = sequelize.define(
-  "payments",
+  "Payments",
   {
     userId: {
       type: DataTypes.INTEGER,

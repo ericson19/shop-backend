@@ -3,7 +3,7 @@ const { DataTypes } = require("sequelize");
 const Staff = require("./staffModel");
 const category = require("./categoryModel");
 const Stock = sequelize.define(
-  "stock",
+  "Stock",
   {
     name: {
       type: DataTypes.STRING,

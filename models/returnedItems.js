@@ -5,7 +5,7 @@ const Stock = require("./stockModel");
 const SalesItems = require("./salesitemsModel");
 
 const ReturnedItems = sequelize.define(
-  "returnedItems",
+  "ReturnedItems",
   {
     returnId: {
       type: DataTypes.INTEGER,
